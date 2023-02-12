@@ -1,42 +1,50 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, Image, TextInput, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Image, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // display splash screen for two seconds
-//SplashScreen.preventAutoHideAsync();
-//setTimeout(SplashScreen.hideAsync, 2000);
+SplashScreen.preventAutoHideAsync();
+setTimeout(SplashScreen.hideAsync, 2000);
 
 // get image for home screen
 const bruschetta = require('./images/bruschetta.png');
+
+// this allows the keyboard to be dismissed when there is a press event outside the keyboard.
+const HideKeyboard = ({ children }) => (
+	<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+	  {children}
+	</TouchableWithoutFeedback>
+  );
 
 // create homescreen
 function HomeScreen({ navigation }) {
 	let numServInput = 1; // assigning this a value of 1 so if the button is pressed with no input, a recipe is displayed for one serving
 
 	return(
-		<View style={styles.homeContainer}> 
-			<Text style={styles.title}>Bruschetta Recipe</Text>
+		<HideKeyboard>
+			<View style={styles.homeContainer}> 
+				<Text style={styles.title}>Bruschetta Recipe</Text>
 
-			<Image source={bruschetta}/>
+				<Image source={bruschetta} style={styles.image}/>
 
-			<TextInput
-				style={styles.placeholder} 
-				placeholder="Enter the Number of Servings"
-				keyboardType='numeric'
-				onTextInput={() => Keyboard.dismiss()} // adding this so the keyboard is dismissed when user enters a number
-				onChangeText={text => numServInput = text} // when the number is changed, assign number to variable for navigation parameter on line 31
-			/>
-			<Pressable
-				style={styles.button} 
-				onPress={() => {
-					navigation.navigate('Recipe', {numberOfServings: numServInput}); // go to Recipe screen when this button is pressed. Passing the numServInput variable as a parameter here
-				}}>
-				<Text style={styles.buttonText}>View Recipe</Text>
-			</Pressable>
-		</View>
+				<TextInput
+					style={styles.placeholder} 
+					placeholder="Enter the Number of Servings"
+					keyboardType='numeric'
+					onChangeText={text => numServInput = text} // when the number is changed, assign number to variable for navigation parameter on line 41
+				/>
+				<Pressable
+					style={styles.button} 
+					onPress={() => {
+						navigation.navigate('Recipe', {numberOfServings: numServInput}); // go to Recipe screen when this button is pressed. Passing the numServInput variable as a parameter here
+					}}>
+
+					<Text style={styles.buttonText}>View Recipe</Text>
+				</Pressable>
+			</View>
+		</HideKeyboard>
 	);
 }
 
@@ -71,20 +79,24 @@ function RecipeScreen( {route} ) {
 	);
 }
 
+// create Stack object for screen navigation
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 	return (
 		<NavigationContainer>
-			<Stack.Navigator initialRouteName="Healthy Recipes" screenOptions={{
-																	headerStyle: {
-																		backgroundColor: '#f4511e',
-																	},
-																	headerTintColor: '#fff',
-																	headerTitleStyle: {
-																		fontWeight: 'bold',
-																	
-																	}}}> 
+			<Stack.Navigator 
+				screenOptions={{
+					headerStyle: {
+						backgroundColor: '#f4511e',
+					},
+					headerTintColor: '#fff',
+					headerTitleStyle: {
+						fontWeight: 'bold',																	
+					}
+				}}
+				initialRouteName="Healthy Recipes"> 
+				
 				<Stack.Screen name="Healthy Recipes" component={HomeScreen} />
 				<Stack.Screen name="Recipe" component={RecipeScreen} />
 			</Stack.Navigator>
@@ -98,22 +110,22 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fff',
 		alignItems: 'center',
-		//justifyContent: 'center',
+		justifyContent: 'center',
 	},
 	recipeContainer: {
 		flex: 1,
 		backgroundColor: '#fff',
+		justifyContent: 'center',
 	},
 	title: {
-		fontSize:  45,
+		fontSize:  40,
 		fontWeight: 'bold',
-		padding: 20,
 		textAlign: 'center'
 	},
 	placeholder: {
 		fontSize: 22,
 		fontWeight: 'bold',
-		padding: 20,
+		padding: 30,
 	},
 	button: {
 		height: 50,
@@ -131,14 +143,17 @@ const styles = StyleSheet.create({
 	subTitle: {
 		fontSize:  35,
 		fontWeight: 'bold',
-		padding: 5,
+		paddingTop: 20,
 	},
 	subTitleContainer: {
-		paddingLeft: 10,
+		paddingLeft: 15,
 	},
 	subItem: {
 		fontSize:  25,
 		fontWeight: 'bold',
 		paddingLeft: 20,
+	},
+	image: {
+		marginTop: 20,
 	},
 });
